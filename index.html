@@ -33,32 +33,77 @@
 					id="taskName"
 					type="text"
 					class="form-control"
-					placeholder="Recipient's username"
-					aria-label="Recipient's username"
+					placeholder="Введите название задачи"
+					aria-label="Введите название задачи"
 					aria-describedby="button-addon2"
 				/>
 				<button class="btn btn-outline-success" type="button" id="addTask">Добавить</button>
+				<div id="validationServerUsernameFeedback" class="invalid-feedback">Поле не заполнено!</div>
 			</div>
 			<div class="alert alert-primary" role="alert">Введите название задачи и нажмите кнопку "Добавить"</div>
 
-			<div class="card mb-3">
-				<div class="card-header">Статистика</div>
-				<div class="card-body d-flex align-items-center">
-					<div class="me-3">
-						Всего задач: <span id="taskCounter" class="badge rounded-pill bg-secondary">0</span>
-					</div>
-					/
-					<div class="ms-3 me-3">
-						Активные задачи: <span id="activeTaskCounter" class="badge rounded-pill bg-primary">0</span>
-					</div>
-					/
-					<div class="ms-3">
-						Выполненные задачи: <span id="successTaskCounter" class="badge rounded-pill bg-success">0</span>
+			<div class="card text-center">
+				<div class="card-header d-flex align-items-center justify-content-between">
+					<ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button
+								class="nav-link active"
+								id="home-tab"
+								data-bs-toggle="tab"
+								data-bs-target="#home"
+								type="button"
+								role="tab"
+								aria-controls="home"
+								aria-selected="true"
+							>
+								Активные задачи
+								<span id="activeTaskCounter" class="badge rounded-pill bg-primary">0</span>
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button
+								class="nav-link"
+								id="profile-tab"
+								data-bs-toggle="tab"
+								data-bs-target="#profile"
+								type="button"
+								role="tab"
+								aria-controls="profile"
+								aria-selected="false"
+							>
+								Выполненные задачи
+								<span id="successTaskCounter" class="badge rounded-pill bg-success">0</span>
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button
+								class="nav-link"
+								id="contact-tab"
+								data-bs-toggle="tab"
+								data-bs-target="#contact"
+								type="button"
+								role="tab"
+								aria-controls="contact"
+								aria-selected="false"
+							>
+								Просроченные задачи
+							</button>
+						</li>
+					</ul>
+					<div>Всего задач: <span id="taskCounter" class="badge rounded-pill bg-secondary">0</span></div>
+				</div>
+				<div class="card-body">
+					<div class="tab-content" id="myTabContent">
+						<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+							<ul id="activeTasks" class="list-group"></ul>
+						</div>
+						<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+							<ul id="successTasks" class="list-group"></ul>
+						</div>
+						<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
 					</div>
 				</div>
 			</div>
-
-			<ul id="tasks" class="list-group"></ul>
 		</div>
 	</body>
 </html>

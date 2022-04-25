@@ -7,8 +7,16 @@ $(function () {
 
 	$('#addTask').click(function () {
 		let taskName = $('#taskName').val();
+		if (taskName == '') {
+			$('#taskName').addClass('is-invalid');
+			return;
+		}
 
-		$('#tasks').append(`
+		if ($('#taskName').hasClass('is-invalid')) {
+			$('#taskName').removeClass('is-invalid');
+		}
+
+		$('#activeTasks').append(`
             <li class="list-group-item d-flex align-items-center justify-content-between">
                 <div>
                     <input class="form-check-input me-1 checkbox" type="checkbox" value="" aria-label="..." />
@@ -22,7 +30,7 @@ $(function () {
 		activeTaskCounter.increment();
 	});
 
-	$('#tasks').on('click', '.removeTask', function () {
+	$(document).on('click', '.removeTask', function () {
 		$(this).parent().remove();
 
 		taskCounter.decrement();
@@ -36,15 +44,20 @@ $(function () {
 		}
 	});
 
-	$('#tasks').on('click', '.checkbox', function () {
+	$(document).on('click', '.checkbox', function () {
 		let isChecked = $(this).is(':checked');
+		let $task = $(this).parent().parent();
 
 		if (isChecked) {
 			successTaskCounter.increment();
 			activeTaskCounter.decrement();
+
+			$('#successTasks').append($task);
 		} else {
 			successTaskCounter.decrement();
 			activeTaskCounter.increment();
+
+			$('#activeTasks').append($task);
 		}
 	});
 });
