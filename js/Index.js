@@ -21,7 +21,7 @@ $(function () {
 		tasks = JSON.parse(tasks);
 
 		for (let task of tasks) {
-			_tasks.push(new Task(task.name, '#activeTasks'));
+			_tasks.push(new Task(task.name, task.isSuccess ? '#successTasks' : '#activeTasks', task.isSuccess));
 		}
 	}
 
@@ -98,5 +98,10 @@ $(function () {
 			$('#activeTasks').append($task);
 			toastInfo(`Задача "${taskName}" перемещена в раздел "Активные задачи".`);
 		}
+
+		let task = _tasks.find((t) => t.name == taskName);
+		task.isSuccess = isChecked;
+
+		$.cookie('tasks', JSON.stringify(_tasks));
 	});
 });
