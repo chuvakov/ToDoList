@@ -1,3 +1,4 @@
+import { toastSuccess, toastInfo } from './Toast.js';
 import Counter from './Counter.js';
 
 $(function () {
@@ -20,7 +21,7 @@ $(function () {
             <li class="list-group-item d-flex align-items-center justify-content-between">
                 <div>
                     <input class="form-check-input me-1 checkbox" type="checkbox" value="" aria-label="..." />
-                    ${taskName}
+                    <span class="taskName">${taskName}</span> 
                 </div>
                 <button type="button" class="btn btn-outline-danger removeTask">Удалить</button>
             </li>
@@ -28,11 +29,15 @@ $(function () {
 
 		taskCounter.increment();
 		activeTaskCounter.increment();
+
+		toastInfo(`Задача "${taskName}" успешно добавлена.`);
 	});
 
 	$(document).on('click', '.removeTask', function () {
-		$(this).parent().remove();
+		let $task = $(this).parent(),
+			taskName = $task.find('.taskName').text();
 
+		$task.remove();
 		taskCounter.decrement();
 
 		let isChecked = $(this).parent().find('.checkbox').is(':checked');
@@ -42,22 +47,27 @@ $(function () {
 		} else {
 			activeTaskCounter.decrement();
 		}
+
+		toastInfo(`Задача "${taskName}" успешно удалена.`);
 	});
 
 	$(document).on('click', '.checkbox', function () {
-		let isChecked = $(this).is(':checked');
-		let $task = $(this).parent().parent();
+		let isChecked = $(this).is(':checked'),
+			$task = $(this).parent().parent(),
+			taskName = $task.find('.taskName').text();
 
 		if (isChecked) {
 			successTaskCounter.increment();
 			activeTaskCounter.decrement();
 
 			$('#successTasks').append($task);
+			toastSuccess(`Задача "${taskName}" перемещена в раздел "Выполненные задачи".`);
 		} else {
 			successTaskCounter.decrement();
 			activeTaskCounter.increment();
 
 			$('#activeTasks').append($task);
+			toastInfo(`Задача "${taskName}" перемещена в раздел "Активные задачи".`);
 		}
 	});
 });
