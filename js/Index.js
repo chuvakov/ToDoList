@@ -1,15 +1,44 @@
 import { toastSuccess, toastInfo } from './Toast.js';
 import Counter from './Counter.js';
+import Task from './Task.js';
 
 $(function () {
 	let taskCounter = new Counter('taskCounter'),
 		activeTaskCounter = new Counter('activeTaskCounter'),
 		successTaskCounter = new Counter('successTaskCounter');
 
+	let _tasks = [];
+
+	initTasks();
+
+	function initTasks() {
+		let tasks = $.cookie('tasks');
+
+		if (tasks == null) {
+			return;
+		}
+
+		tasks = JSON.parse(tasks);
+
+		for (let task of tasks) {
+			_tasks.push(new Task(task.name, '#activeTasks'));
+		}
+	}
+
 	$('#addTask').click(function () {
 		let taskName = $('#taskName').val();
+
 		if (taskName == '') {
+			$('#validationTaskName').text('Поле не заполнено!');
 			$('#taskName').addClass('is-invalid');
+
+			return;
+		}
+
+		if (_tasks.find((t) => t.name == taskName) != undefined) {
+			$('#validationTaskName').text('Такая задача уже добавлена!');
+			$('#taskName').addClass('is-invalid');
+
 			return;
 		}
 
@@ -17,15 +46,10 @@ $(function () {
 			$('#taskName').removeClass('is-invalid');
 		}
 
-		$('#activeTasks').append(`
-            <li class="list-group-item d-flex align-items-center justify-content-between">
-                <div>
-                    <input class="form-check-input me-1 checkbox" type="checkbox" value="" aria-label="..." />
-                    <span class="taskName">${taskName}</span> 
-                </div>
-                <button type="button" class="btn btn-outline-danger removeTask">Удалить</button>
-            </li>
-        `);
+		let task = new Task(taskName, '#activeTasks');
+		_tasks.push(task);
+
+		$.cookie('tasks', JSON.stringify(_tasks));
 
 		taskCounter.increment();
 		activeTaskCounter.increment();
@@ -47,6 +71,11 @@ $(function () {
 		} else {
 			activeTaskCounter.decrement();
 		}
+
+		let taskIndex = _tasks.findIndex((t) => t.name == taskName);
+		_tasks.splice(taskIndex, 1);
+
+		$.cookie('tasks', JSON.stringify(_tasks));
 
 		toastInfo(`Задача "${taskName}" успешно удалена.`);
 	});
