@@ -1,30 +1,53 @@
-import { toastSuccess, toastInfo } from './Toast.js';
+import { toastSuccess, toastInfo, toastError } from './Toast.js';
 import Counter from './Counter.js';
 import Task from './Task.js';
 
 $(function () {
 	let taskCounter = new Counter('taskCounter'),
 		activeTaskCounter = new Counter('activeTaskCounter'),
-		successTaskCounter = new Counter('successTaskCounter');
+		successTaskCounter = new Counter('successTaskCounter'),
+		_tasks = [];
 
-	let _tasks = [];
+	const initCounters = () => {
+		axios
+			.get('https://localhost:7195/Tasks/GetTaskCounts')
+			.then(function (response) {
+				const data = response.data;
 
-	initTasks();
+				taskCounter.count = data.totalCount;
+				activeTaskCounter.count = data.activeCount;
+				successTaskCounter.count = data.successCount;
+			})
+			.catch(function (error) {});
+	};
 
-	function initTasks() {
-		let tasks = $.cookie('tasks');
+	//Инициализация задач
+	const initTasks = (status) => {
+		axios
+			.post('https://localhost:7195/Tasks/GetAll', {
+				status: status,
+			})
+			.then(function (response) {
+				_tasks = [];
+				initCounters();
 
-		if (tasks == null) {
-			return;
-		}
+				$('#activeTasks').empty();
+				$('#successTasks').empty();
 
-		tasks = JSON.parse(tasks);
+				let tasks = response.data;
+				for (let task of tasks) {
+					_tasks.push(new Task(task.id, task.name, task.status));
+				}
+			})
+			.catch(function (error) {
+				// обработка ошибки
+				console.log(error);
+			});
+	};
 
-		for (let task of tasks) {
-			_tasks.push(new Task(task.name, task.isSuccess ? '#successTasks' : '#activeTasks', task.isSuccess));
-		}
-	}
+	initTasks(0);
 
+	//Добавление
 	$('#addTask').click(function () {
 		let taskName = $('#taskName').val();
 
@@ -35,73 +58,80 @@ $(function () {
 			return;
 		}
 
-		if (_tasks.find((t) => t.name == taskName) != undefined) {
-			$('#validationTaskName').text('Такая задача уже добавлена!');
-			$('#taskName').addClass('is-invalid');
-
-			return;
-		}
-
 		if ($('#taskName').hasClass('is-invalid')) {
 			$('#taskName').removeClass('is-invalid');
 		}
 
-		let task = new Task(taskName, '#activeTasks');
-		_tasks.push(task);
-
-		$.cookie('tasks', JSON.stringify(_tasks));
-
-		taskCounter.increment();
-		activeTaskCounter.increment();
-
-		toastInfo(`Задача "${taskName}" успешно добавлена.`);
+		axios
+			.post('https://localhost:7195/Tasks/Create', {
+				name: taskName,
+			})
+			.then(function (response) {
+				initTasks(0);
+				toastInfo(`Задача "${taskName}" успешно добавлена.`);
+			})
+			.catch(function (error) {
+				$('#validationTaskName').text(error.response.data);
+				$('#taskName').addClass('is-invalid');
+			});
 	});
 
+	//Удаление
 	$(document).on('click', '.removeTask', function () {
-		let $task = $(this).parent(),
-			taskName = $task.find('.taskName').text();
+		const taskName = $(this).parent().find('.taskName').text(),
+			task = _tasks.find((t) => t.name == taskName);
 
-		$task.remove();
-		taskCounter.decrement();
-
-		let isChecked = $(this).parent().find('.checkbox').is(':checked');
-
-		if (isChecked) {
-			successTaskCounter.decrement();
-		} else {
-			activeTaskCounter.decrement();
-		}
-
-		let taskIndex = _tasks.findIndex((t) => t.name == taskName);
-		_tasks.splice(taskIndex, 1);
-
-		$.cookie('tasks', JSON.stringify(_tasks));
-
-		toastInfo(`Задача "${taskName}" успешно удалена.`);
+		axios
+			.post('https://localhost:7195/Tasks/Delete', null, {
+				params: {
+					id: task.id,
+				},
+			})
+			.then(function () {
+				if ($('#successTasksContent').hasClass('active')) {
+					initTasks(1);
+				} else {
+					initTasks(0);
+				}
+				toastInfo(`Задача "${taskName}" успешно удалена.`);
+			})
+			.catch(function (error) {
+				toastError(error.response.data);
+			});
 	});
 
+	//Обновление
 	$(document).on('click', '.checkbox', function () {
-		let isChecked = $(this).is(':checked'),
-			$task = $(this).parent().parent(),
-			taskName = $task.find('.taskName').text();
+		let status = $(this).is(':checked') ? 1 : 0,
+			taskName = $(this).parent().parent().find('.taskName').text(),
+			task = _tasks.find((t) => t.name == taskName);
 
-		if (isChecked) {
-			successTaskCounter.increment();
-			activeTaskCounter.decrement();
+		axios
+			.post('https://localhost:7195/Tasks/Update', {
+				id: task.id,
+				status: status,
+			})
+			.then(function () {
+				if (status == 1) {
+					toastSuccess(`Задача "${taskName}" перемещена в раздел "Выполненные задачи".`);
+					initTasks(0);
+				} else {
+					toastInfo(`Задача "${taskName}" перемещена в раздел "Активные задачи".`);
+					initTasks(1);
+				}
+			})
+			.catch(function (error) {
+				toastError(error.response.data);
+			});
+	});
 
-			$('#successTasks').append($task);
-			toastSuccess(`Задача "${taskName}" перемещена в раздел "Выполненные задачи".`);
-		} else {
-			successTaskCounter.decrement();
-			activeTaskCounter.increment();
+	//Нажатие по вкладке активных
+	$('#activeTasksTab').click(function () {
+		initTasks(0);
+	});
 
-			$('#activeTasks').append($task);
-			toastInfo(`Задача "${taskName}" перемещена в раздел "Активные задачи".`);
-		}
-
-		let task = _tasks.find((t) => t.name == taskName);
-		task.isSuccess = isChecked;
-
-		$.cookie('tasks', JSON.stringify(_tasks));
+	//Нажатие по вкладке успешных
+	$('#successTasksTab').click(function () {
+		initTasks(1);
 	});
 });

@@ -61,3 +61,35 @@ export function toastInfo(message) {
 	var toast = new bootstrap.Toast(toastOnPage);
 	toast.show();
 }
+
+export function toastError(message) {
+	let toastHtml = `
+        <div class="toast-error position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div
+                id="error-toast"
+                class="toast align-items-center text-white border-0"
+                style="background-color: #8B81FF;"
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+            >
+                <div class="d-flex">
+                    <div class="toast-body"> <img src="/img/info_FILL0_wght400_GRAD0_opsz48.svg"> ${message}</div>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"
+                        aria-label="Close"
+                    ></button>
+                </div>
+            </div>
+        </div>
+    `;
+
+	$('.toast-error').remove();
+	$('body').append(toastHtml);
+
+	var toastOnPage = document.getElementById('error-toast');
+	var toast = new bootstrap.Toast(toastOnPage);
+	toast.show();
+}

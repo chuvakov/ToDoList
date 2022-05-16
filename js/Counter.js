@@ -2,22 +2,13 @@ export default class Counter {
 	constructor(id) {
 		this.$element = $('#' + id);
 		this.id = id;
-		this.count = $.cookie(id) || 0;
+		this._count = 0;
 
-		this.$element.text(this.count);
+		this.$element.text(this._count);
 	}
 
-	increment() {
-		this.count++;
-		this.$element.text(this.count);
-
-		$.cookie(this.id, this.count);
-	}
-
-	decrement() {
-		this.count--;
-		this.$element.text(this.count);
-
-		$.cookie(this.id, this.count);
+	set count(value) {
+		this._count = value;
+		this.$element.text(this._count);
 	}
 }

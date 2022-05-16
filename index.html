@@ -23,6 +23,9 @@
 			integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
 			crossorigin="anonymous"
 		></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 		<script src="/js/libs/jquery.cookie.js"></script>
 		<script src="/js/Index.js" type="module"></script>
 	</head>
@@ -49,9 +52,9 @@
 						<li class="nav-item" role="presentation">
 							<button
 								class="nav-link active"
-								id="home-tab"
+								id="activeTasksTab"
 								data-bs-toggle="tab"
-								data-bs-target="#home"
+								data-bs-target="#activeTasksContent"
 								type="button"
 								role="tab"
 								aria-controls="home"
@@ -64,9 +67,9 @@
 						<li class="nav-item" role="presentation">
 							<button
 								class="nav-link"
-								id="profile-tab"
+								id="successTasksTab"
 								data-bs-toggle="tab"
-								data-bs-target="#profile"
+								data-bs-target="#successTasksContent"
 								type="button"
 								role="tab"
 								aria-controls="profile"
@@ -95,12 +98,24 @@
 				</div>
 				<div class="card-body">
 					<div class="tab-content" id="myTabContent">
-						<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+						<div
+							class="tab-pane fade show active"
+							id="activeTasksContent"
+							role="tabpanel"
+							aria-labelledby="home-tab"
+						>
 							<ul id="activeTasks" class="list-group"></ul>
 						</div>
-						<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+
+						<div
+							class="tab-pane fade"
+							id="successTasksContent"
+							role="tabpanel"
+							aria-labelledby="profile-tab"
+						>
 							<ul id="successTasks" class="list-group"></ul>
 						</div>
+
 						<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
 					</div>
 				</div>
